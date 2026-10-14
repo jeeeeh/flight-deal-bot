@@ -4,6 +4,11 @@ on:
   schedule:
     - cron: "17 * * * *"   # 매시 17분 (정각은 GitHub 대기열이 몰려서 피함)
   workflow_dispatch:        # Actions 탭에서 수동 실행 버튼
+    inputs:
+      test_message:
+        description: "텔레그램 연결 테스트 메시지만 보내기"
+        type: boolean
+        default: false
 
 permissions:
   contents: write           # 가격 기록(data/)을 저장소에 저장
@@ -30,6 +35,7 @@ jobs:
           TP_TOKEN: ${{ secrets.TP_TOKEN }}
           BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
           CHAT_ID: ${{ secrets.CHAT_ID }}
+          TEST_MESSAGE: ${{ inputs.test_message }}
         run: python bot.py
 
       - name: 기록 저장

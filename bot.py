@@ -224,6 +224,11 @@ def chunks(deals, size=6):
 
 
 def main():
+    if os.environ.get("TEST_MESSAGE") == "true":
+        hist = load(HISTORY_FILE, {})
+        n = sum(len(v) for v in hist.values())
+        send(f"✅ <b>항공권 봇 연결 확인</b>\n가격 기록 {n}건 수집 중이에요.\n노선별로 기록이 충분히 쌓이면(약 1주) 특가가 뜰 때 알려드릴게요.")
+        return
     if not TP_TOKEN:
         sys.exit("TP_TOKEN(Travelpayouts 토큰)이 없어요.")
 

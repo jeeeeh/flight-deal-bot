@@ -24,11 +24,147 @@
   "max_nights": 6,
   "months_ahead": 6,
   "direct_only": true,
-  "passengers": { "adult": 2, "child": 3, "child_ages": [10, 5, 5] },
-
+  "passengers": {
+    "adult": 2,
+    "child": 3,
+    "child_ages": [
+      10,
+      5,
+      5
+    ]
+  },
   "percentile": 30,
   "history_days": 180,
   "min_samples": 40,
   "min_history_days": 7,
-  "max_alerts_per_route": 3
+  "max_alerts_per_route": 3,
+  "avoid": {
+    "DAD": {
+      "months": [
+        9,
+        10,
+        11,
+        12
+      ],
+      "why": "우기·태풍"
+    },
+    "CXR": {
+      "months": [
+        10,
+        11,
+        12
+      ],
+      "why": "우기"
+    },
+    "PQC": {
+      "months": [
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "why": "우기(남서몬순)"
+    },
+    "CEB": {
+      "months": [
+        7,
+        8,
+        9,
+        10
+      ],
+      "why": "태풍"
+    },
+    "KLO": {
+      "months": [
+        7,
+        8,
+        9,
+        10
+      ],
+      "why": "우기·태풍"
+    },
+    "BKI": {
+      "months": [
+        11,
+        12,
+        1
+      ],
+      "why": "우기(북동몬순)"
+    },
+    "GUM": {
+      "months": [
+        8,
+        9,
+        10
+      ],
+      "why": "태풍"
+    },
+    "SPN": {
+      "months": [
+        8,
+        9,
+        10
+      ],
+      "why": "태풍"
+    },
+    "OKA": {
+      "months": [
+        6,
+        8,
+        9
+      ],
+      "why": "장마·태풍"
+    },
+    "FUK": {
+      "months": [
+        6,
+        7,
+        8
+      ],
+      "why": "장마·폭염·태풍"
+    },
+    "KIX": {
+      "months": [
+        6,
+        7,
+        8
+      ],
+      "why": "장마·폭염"
+    },
+    "TPE": {
+      "months": [
+        6,
+        7,
+        8,
+        9
+      ],
+      "why": "매우(장마)·태풍"
+    },
+    "BKK": {
+      "months": [
+        4,
+        5,
+        9,
+        10
+      ],
+      "why": "폭염·우기"
+    },
+    "SIN": {
+      "months": [
+        11,
+        12
+      ],
+      "why": "우기(북동몬순)"
+    },
+    "TAG": {
+      "months": [
+        7,
+        8,
+        9,
+        10
+      ],
+      "why": "우기·태풍"
+    }
+  }
 }

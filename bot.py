@@ -54,10 +54,30 @@ def months_to_search():
     return out
 
 
+def avoid_months(dest):
+    return set(CFG.get("avoid", {}).get(dest, {}).get("months", []))
+
+
+def in_avoid(dest, dep, ret):
+    """여행 기간 중 하루라도 기피 시기에 걸리면 True"""
+    bad = avoid_months(dest)
+    if not bad:
+        return False
+    d = dep
+    while d <= ret:
+        if d.month in bad:
+            return True
+        d += timedelta(days=1)
+    return False
+
+
 def fetch_route(origin, dest):
-    """해당 노선의 직항 왕복 최저가 목록 (출발일·귀국일·1인 가격)"""
+    """해당 노선의 직항 왕복 최저가 목록 (출발일·귀국일·1인 가격), 기피 시기 제외"""
     fares = {}
+    bad = avoid_months(dest)
     for month in months_to_search():
+        if int(month[5:]) in bad:
+            continue  # 출발 월 자체가 기피 시기면 조회 생략
         params = {
             "origin": origin,
             "destination": dest,
@@ -96,6 +116,8 @@ def fetch_route(origin, dest):
             nights = (ret - dep).days
             if not (CFG["min_nights"] <= nights <= CFG["max_nights"]) or dep <= TODAY:
                 continue
+            if in_avoid(dest, dep, ret):
+                continue
             key = f"{dep}|{ret}"
             price = int(it["price"])
             if key not in fares or price < fares[key]["price"]:
@@ -122,7 +144,9 @@ def update_history(hist, route, fares):
             rows.append(row)
             index[k] = row
     cutoff = str(TODAY - timedelta(days=CFG["history_days"]))
-    hist[route] = [r for r in rows if r[4] >= cutoff]
+    dest = route.split("-")[1]
+    hist[route] = [r for r in rows if r[4] >= cutoff
+                   and not in_avoid(dest, date.fromisoformat(r[0]), date.fromisoformat(r[1]))]
 
 
 def percentile(values, p):

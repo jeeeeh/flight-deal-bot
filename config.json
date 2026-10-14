@@ -1,0 +1,34 @@
+{
+  "origins": {
+    "ICN": "인천",
+    "CJJ": "청주"
+  },
+  "destinations": {
+    "DAD": "다낭",
+    "CXR": "나트랑",
+    "PQC": "푸꾸옥",
+    "CEB": "세부",
+    "KLO": "보라카이(칼리보)",
+    "BKI": "코타키나발루",
+    "GUM": "괌",
+    "SPN": "사이판",
+    "OKA": "오키나와",
+    "FUK": "후쿠오카",
+    "KIX": "오사카",
+    "TPE": "타이베이",
+    "BKK": "방콕",
+    "SIN": "싱가포르",
+    "TAG": "보홀"
+  },
+  "min_nights": 3,
+  "max_nights": 6,
+  "months_ahead": 6,
+  "direct_only": true,
+  "passengers": { "adult": 2, "child": 3, "child_ages": [10, 5, 5] },
+
+  "percentile": 30,
+  "history_days": 180,
+  "min_samples": 40,
+  "min_history_days": 7,
+  "max_alerts_per_route": 3
+}

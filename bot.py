@@ -197,7 +197,8 @@ def build_message(deals):
             f"📅 {fmt_date(f['dep'])} ~ {fmt_date(f['ret'])}"
             + (f" · {f['airline']}" if f["airline"] else "") + "\n"
             f"💰 1인 {won(f['price'])} → {people}명 약 {won(f['price'] * people)}\n"
-            f"📉 최근 기록 하위 {d['rank']:.0f}% (기준가 {won(int(d['threshold']))} 미만, 평소 중간값 {won(int(d['median']))})\n"
+            + ("📉 최근 기록 중 최저가" if d["rank"] < 1 else f"📉 최근 기록 하위 {d['rank']:.0f}%")
+            + f" (기준가 {won(int(d['threshold']))} 미만, 평소 중간값 {won(int(d['median']))})\n"
             f"🔎 <a href=\"{naver_link(d['o'], d['d'], f)}\">네이버 항공권 (성인{p['adult']}·소아{p['child']})</a>"
             + (f" · <a href=\"https://www.aviasales.com{f['link']}\">Aviasales</a>" if f["link"] else "")
             + "\n"
@@ -223,11 +224,36 @@ def chunks(deals, size=6):
         yield deals[i:i + size]
 
 
+def send_sample():
+    """지금까지 모은 실제 가격으로 알림 양식 예시를 보냄 (기록·발송내역에는 반영 안 함)"""
+    hist = load(HISTORY_FILE, {})
+    deals = []
+    routes = sorted((r for r in hist.items() if len(r[1]) >= 5), key=lambda x: -len(x[1]))[:3]
+    for route, rows in routes:
+        o, d = route.split("-")
+        prices = [r[2] for r in rows]
+        cheapest = min(rows, key=lambda r: r[2])
+        dep, ret = date.fromisoformat(cheapest[0]), date.fromisoformat(cheapest[1])
+        fare = {"dep": cheapest[0], "ret": cheapest[1], "nights": (ret - dep).days,
+                "price": cheapest[2], "airline": "", "link": ""}
+        deals.append({"o": o, "d": d, "oname": CFG["origins"].get(o, o),
+                      "dname": CFG["destinations"].get(d, d), "fare": fare,
+                      "threshold": percentile(prices, CFG["percentile"]),
+                      "median": percentile(prices, 50), "rank": rank_pct(prices, cheapest[2])})
+    if not deals:
+        send("아직 예시를 만들 만큼 기록이 없어요. 몇 시간 뒤에 다시 시도해 주세요.")
+        return
+    send("🧪 <b>[예시] 실제 알림은 이렇게 와요</b>\n(지금까지 모은 가격으로 만든 샘플이에요)\n\n" + build_message(deals))
+
+
 def main():
     if os.environ.get("TEST_MESSAGE") == "true":
         hist = load(HISTORY_FILE, {})
         n = sum(len(v) for v in hist.values())
         send(f"✅ <b>항공권 봇 연결 확인</b>\n가격 기록 {n}건 수집 중이에요.\n노선별로 기록이 충분히 쌓이면(약 1주) 특가가 뜰 때 알려드릴게요.")
+        return
+    if os.environ.get("SAMPLE_MESSAGE") == "true":
+        send_sample()
         return
     if not TP_TOKEN:
         sys.exit("TP_TOKEN(Travelpayouts 토큰)이 없어요.")

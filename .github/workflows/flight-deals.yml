@@ -9,6 +9,10 @@ on:
         description: "텔레그램 연결 테스트 메시지만 보내기"
         type: boolean
         default: false
+      sample_message:
+        description: "알림 양식 예시 보내기"
+        type: boolean
+        default: false
 
 permissions:
   contents: write           # 가격 기록(data/)을 저장소에 저장
@@ -36,6 +40,7 @@ jobs:
           BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
           CHAT_ID: ${{ secrets.CHAT_ID }}
           TEST_MESSAGE: ${{ inputs.test_message }}
+          SAMPLE_MESSAGE: ${{ inputs.sample_message }}
         run: python bot.py
 
       - name: 기록 저장

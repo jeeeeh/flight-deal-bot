@@ -5,6 +5,10 @@ on:
     - cron: "17 * * * *"   # 매시 17분 (정각은 GitHub 대기열이 몰려서 피함)
   workflow_dispatch:        # Actions 탭에서 수동 실행 버튼
     inputs:
+      probe:
+        description: "개발용 데이터 점검"
+        type: boolean
+        default: false
       test_message:
         description: "텔레그램 연결 테스트 메시지만 보내기"
         type: boolean
@@ -34,7 +38,13 @@ jobs:
 
       - run: pip install requests
 
+      - name: 데이터 점검
+        if: ${{ inputs.probe }}
+        env:
+          TP_TOKEN: ${{ secrets.TP_TOKEN }}
+        run: python tools/probe.py | tee data/probe.log
       - name: 가격 수집 & 특가 알림
+        if: ${{ !inputs.probe }}
         env:
           TP_TOKEN: ${{ secrets.TP_TOKEN }}
           BOT_TOKEN: ${{ secrets.BOT_TOKEN }}

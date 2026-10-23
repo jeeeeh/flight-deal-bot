@@ -22,7 +22,7 @@
   },
   "min_nights": 3,
   "max_nights": 6,
-  "months_ahead": 6,
+  "months_ahead": 11,
   "direct_only": true,
   "passengers": {
     "adult": 2,
@@ -35,7 +35,7 @@
   },
   "percentile": 30,
   "history_days": 180,
-  "min_samples": 40,
+  "min_samples": 20,
   "min_history_days": 7,
   "max_alerts_per_route": 3,
   "avoid": {
@@ -166,5 +166,10 @@
       ],
       "why": "우기·태풍"
     }
-  }
+  },
+  "peak_ratio": 0.75,
+  "peak_max_months": 5,
+  "google_checks_per_route": 2,
+  "google_daily_limit": 8,
+  "google_monthly_limit": 240
 }

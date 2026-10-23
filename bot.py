@@ -1,8 +1,10 @@
 """
 가족 항공권 특가 알림 봇 (GitHub Actions, 1시간마다 실행)
 
-- Travelpayouts(Aviasales) 무료 API로 직항 왕복 최저가(성인 1인 기준)를 수집
-- 노선별로 지난 180일 동안 모은 가격 기록에서 하위 30% 미만이면 텔레그램 알림
+- 성수기 = 네이버 데이터랩에서 최근 2년간 "○○ 여행/날씨/항공권"이 많이 검색된 달 (목적지별)
+- Travelpayouts(Aviasales) 무료 API로 성수기 출발 직항 왕복 최저가(성인 1인)를 수집
+- 노선별 '성수기 가격끼리' 비교해 하위 N% 후보를 고르고,
+  SerpApi(구글 항공권, 성인2·소아3·직항)로 다시 조회해 구글이 '낮음'이라고 할 때만 알림
 - 한 번 알린 (노선, 출발일, 귀국일)은 다시 알리지 않음
 - 알릴 게 없으면 아무것도 보내지 않음
 """
@@ -22,6 +24,11 @@ SENT_FILE = DATA / "sent.json"
 CFG = json.loads((ROOT / "config.json").read_text(encoding="utf-8"))
 
 TP_TOKEN = os.environ.get("TP_TOKEN", "")
+NAVER_ID = os.environ.get("NAVER_CLIENT_ID", "")
+NAVER_SECRET = os.environ.get("NAVER_CLIENT_SECRET", "")
+SERP_KEY = os.environ.get("SERPAPI_KEY", "")
+PEAK_FILE = DATA / "peak.json"
+SERP_FILE = DATA / "google_checks.json"
 BOT_TOKEN = os.environ.get("BOT_TOKEN", "")
 CHAT_IDS = [c.strip() for c in os.environ.get("CHAT_ID", "").split(",") if c.strip()]
 
@@ -40,6 +47,63 @@ def load(path, default):
 def save(path, obj):
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(obj, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+
+
+# ───────── 성수기 (네이버 검색량) ─────────
+def peak_months():
+    """{목적지코드: [성수기 달...]} — 최근 24개월 네이버 검색량을 달별로 평균내서 상위 달. 일주일에 한 번 갱신"""
+    cached = load(PEAK_FILE, {})
+    if cached.get("_updated", "") >= str(TODAY - timedelta(days=7)) and cached.get("peaks"):
+        return {k: v for k, v in cached["peaks"].items()}
+    if not (NAVER_ID and NAVER_SECRET):
+        print("! 네이버 키가 없어서 성수기 계산 생략 (기피 시기 외 전체 달 사용)")
+        return cached.get("peaks", {})
+    end = TODAY.replace(day=1) - timedelta(days=1)
+    start = date(end.year - 2, end.month, 1) + timedelta(days=31)
+    start = start.replace(day=1)
+    groups = []
+    for code, name in CFG["destinations"].items():
+        n = name.split("(")[0].strip()
+        groups.append((code, {"groupName": code, "keywords": [f"{n} 여행", f"{n} 날씨", f"{n} 항공권", f"{n} 가족여행"]}))
+    peaks, monthly = {}, {}
+    for i in range(0, len(groups), 5):
+        batch = groups[i:i + 5]
+        body = {"startDate": str(start), "endDate": str(end), "timeUnit": "month",
+                "keywordGroups": [g for _, g in batch]}
+        try:
+            r = requests.post("https://naverapihub.apigw.ntruss.com/search-trend/v1/search", json=body, timeout=30,
+                              headers={"X-NCP-APIGW-API-KEY-ID": NAVER_ID, "X-NCP-APIGW-API-KEY": NAVER_SECRET,
+                                       "Content-Type": "application/json"})
+            r.raise_for_status()
+            for res in r.json()["results"]:
+                by_m = {}
+                for x in res["data"]:
+                    by_m.setdefault(int(x["period"][5:7]), []).append(x["ratio"])
+                avg = {m: sum(v) / len(v) for m, v in by_m.items()}
+                monthly[res["title"]] = avg
+        except Exception as e:
+            print(f"! 데이터랩 오류: {e}")
+        time.sleep(0.3)
+    for code, avg in monthly.items():
+        if not avg:
+            continue
+        ranked = sorted(avg, key=avg.get, reverse=True)
+        top = max(avg.values())
+        pk = [m for m in ranked if avg[m] >= top * CFG.get("peak_ratio", 0.75)][: CFG.get("peak_max_months", 5)]
+        pk = [m for m in pk if m not in avoid_months(code)] or ranked[:3]
+        peaks[code] = sorted(pk)
+    save(PEAK_FILE, {"_updated": str(TODAY), "peaks": peaks,
+                     "monthly": {k: {str(m): round(v, 1) for m, v in a.items()} for k, a in monthly.items()}})
+    print("성수기:", {CFG["destinations"][k]: v for k, v in peaks.items()})
+    return peaks
+
+
+PEAKS = {}
+
+
+def in_peak(dest, dep):
+    pk = PEAKS.get(dest)
+    return True if not pk else dep.month in pk
 
 
 # ───────── 가격 수집 ─────────
@@ -76,8 +140,8 @@ def fetch_route(origin, dest):
     fares = {}
     bad = avoid_months(dest)
     for month in months_to_search():
-        if int(month[5:]) in bad:
-            continue  # 출발 월 자체가 기피 시기면 조회 생략
+        if int(month[5:]) in bad or (PEAKS.get(dest) and int(month[5:]) not in PEAKS[dest]):
+            continue  # 기피 시기 / 성수기가 아닌 달은 조회 생략
         params = {
             "origin": origin,
             "destination": dest,
@@ -116,7 +180,7 @@ def fetch_route(origin, dest):
             nights = (ret - dep).days
             if not (CFG["min_nights"] <= nights <= CFG["max_nights"]) or dep <= TODAY:
                 continue
-            if in_avoid(dest, dep, ret):
+            if in_avoid(dest, dep, ret) or not in_peak(dest, dep):
                 continue
             key = f"{dep}|{ret}"
             price = int(it["price"])
@@ -146,7 +210,8 @@ def update_history(hist, route, fares):
     cutoff = str(TODAY - timedelta(days=CFG["history_days"]))
     dest = route.split("-")[1]
     hist[route] = [r for r in rows if r[4] >= cutoff
-                   and not in_avoid(dest, date.fromisoformat(r[0]), date.fromisoformat(r[1]))]
+                   and not in_avoid(dest, date.fromisoformat(r[0]), date.fromisoformat(r[1]))
+                   and in_peak(dest, date.fromisoformat(r[0]))]
 
 
 def percentile(values, p):
@@ -169,6 +234,44 @@ def enough_data(rows):
     return (TODAY - date.fromisoformat(first)).days >= CFG["min_history_days"]
 
 
+# ───────── 구글 항공권으로 크로스체크 (SerpApi, 무료 월 250회) ─────────
+def google_check(o, d, f, checks):
+    """구글 항공권: 성인2·소아3·직항·이코노미 왕복. {'level','total','range'} 또는 None"""
+    key = f"{o}-{d}|{f['dep']}|{f['ret']}"
+    old = checks.get(key)
+    if old and old.get("day", "") >= str(TODAY - timedelta(days=3)):
+        return old  # 3일 안에 확인한 건 다시 조회 안 함
+    month = str(TODAY)[:7]
+    if checks.get("_used", {}).get(month, 0) >= CFG.get("google_monthly_limit", 240):
+        return None
+    if checks.get("_today", {}).get(str(TODAY), 0) >= CFG.get("google_daily_limit", 8):
+        return None
+    p = CFG["passengers"]
+    params = {"engine": "google_flights", "departure_id": "ICN" if o == "ICN" else o, "arrival_id": d,
+              "outbound_date": f["dep"], "return_date": f["ret"], "type": 1, "travel_class": 1, "stops": 1,
+              "adults": p["adult"], "children": p["child"], "currency": "KRW", "hl": "ko", "gl": "kr",
+              "api_key": SERP_KEY}
+    try:
+        r = requests.get("https://serpapi.com/search.json", params=params, timeout=60)
+        j = r.json()
+    except Exception as e:
+        print(f"! 구글 조회 실패 {key}: {e}")
+        return None
+    checks.setdefault("_used", {})[month] = checks.get("_used", {}).get(month, 0) + 1
+    checks.setdefault("_today", {})[str(TODAY)] = checks.get("_today", {}).get(str(TODAY), 0) + 1
+    pi = j.get("price_insights") or {}
+    flights = (j.get("best_flights") or []) + (j.get("other_flights") or [])
+    total = pi.get("lowest_price") or min((x.get("price", 10**12) for x in flights), default=None)
+    res = {"day": str(TODAY), "level": pi.get("price_level"), "total": total,
+           "range": pi.get("typical_price_range"), "error": j.get("error")}
+    checks[key] = res
+    print(f"구글 {key}: {res}")
+    return res
+
+
+LEVEL = {"low": "낮음 ✅", "typical": "보통", "high": "높음"}
+
+
 # ───────── 링크 & 메시지 ─────────
 def naver_link(o, d, f):
     dep, ret = f["dep"].replace("-", ""), f["ret"].replace("-", "")
@@ -189,22 +292,24 @@ def won(n):
 def build_message(deals):
     p = CFG["passengers"]
     people = p["adult"] + p["child"]
-    lines = [f"✈️ <b>항공권 특가 {len(deals)}건</b> (직항·왕복·이코노미)\n"]
+    lines = [f"✈️ <b>[항공권 봇] 성수기 특가 {len(deals)}건</b> (직항·왕복·이코노미)\n"]
     for d in deals:
         f = d["fare"]
         lines.append(
             f"<b>{d['oname']} → {d['dname']}</b> · {f['nights']}박{f['nights']+1}일\n"
             f"📅 {fmt_date(f['dep'])} ~ {fmt_date(f['ret'])}"
             + (f" · {f['airline']}" if f["airline"] else "") + "\n"
-            f"💰 1인 {won(f['price'])} → {people}명 약 {won(f['price'] * people)}\n"
-            + ("📉 최근 기록 중 최저가" if d["rank"] < 1 else f"📉 최근 기록 하위 {d['rank']:.0f}%")
-            + f" (기준가 {won(int(d['threshold']))} 미만, 평소 중간값 {won(int(d['median']))})\n"
+            + (f"💰 {people}인 총액 {won(int(g['total']))} (구글 항공권)\n" if (g := d.get("google")) and g.get("total")
+               else f"💰 1인 {won(f['price'])} → {people}명 약 {won(f['price'] * people)}\n")
+            + (f"📊 구글: 이 날짜 보통 {won(int(g['range'][0]))}~{won(int(g['range'][1]))} → {LEVEL.get(g['level'], g['level'])}\n"
+               if g and g.get("range") else (f"📊 구글: {LEVEL.get(g['level'], g['level'])}\n" if g and g.get("level") else ""))
+            + f"📉 성수기({d['peak']}) 가격 중 하위 {max(d['rank'], 1):.0f}% · 성수기 중간값 1인 {won(int(d['median']))}\n"
             f"🔎 <a href=\"{naver_link(d['o'], d['d'], f)}\">네이버 항공권 (성인{p['adult']}·소아{p['child']})</a>"
             + (f" · <a href=\"https://www.aviasales.com{f['link']}\">Aviasales</a>" if f["link"] else "")
             + "\n"
             + (f"   └ 같은 노선 기준가 미만 날짜 {d['more']}건 더 있음\n" if d.get("more") else "")
         )
-    lines.append("※ 가격은 성인 1인 기준 최근 검색 캐시예요. 소아 요금·좌석은 링크에서 확인하세요.")
+    lines.append("※ 구글 항공권이 '낮음'이라고 판단한 것만 보내요. 좌석은 링크에서 확인하세요.")
     return "\n".join(lines)
 
 
@@ -239,7 +344,7 @@ def send_sample():
         deals.append({"o": o, "d": d, "oname": CFG["origins"].get(o, o),
                       "dname": CFG["destinations"].get(d, d), "fare": fare,
                       "threshold": percentile(prices, CFG["percentile"]),
-                      "median": percentile(prices, 50), "rank": rank_pct(prices, cheapest[2])})
+                      "median": percentile(prices, 50), "rank": rank_pct(prices, cheapest[2]), "peak": "예시"})
     if not deals:
         send("아직 예시를 만들 만큼 기록이 없어요. 몇 시간 뒤에 다시 시도해 주세요.")
         return
@@ -250,6 +355,10 @@ def main():
     if os.environ.get("TEST_MESSAGE") == "true":
         hist = load(HISTORY_FILE, {})
         n = sum(len(v) for v in hist.values())
+        pk = load(PEAK_FILE, {}).get("peaks", {})
+        if pk:
+            send("📅 <b>[항공권 봇] 목적지별 성수기</b> (최근 2년 네이버 검색량 기준)\n" + "\n".join(
+                f"· {CFG['destinations'][k]}: {', '.join(f'{m}월' for m in v)}" for k, v in pk.items()))
         send(f"✅ <b>항공권 봇 연결 확인</b>\n가격 기록 {n}건 수집 중이에요.\n노선별로 기록이 충분히 쌓이면(약 1주) 특가가 뜰 때 알려드릴게요.")
         return
     if os.environ.get("SAMPLE_MESSAGE") == "true":
@@ -258,8 +367,11 @@ def main():
     if not TP_TOKEN:
         sys.exit("TP_TOKEN(Travelpayouts 토큰)이 없어요.")
 
+    global PEAKS
+    PEAKS = peak_months()
     hist = load(HISTORY_FILE, {})
     sent = load(SENT_FILE, {})
+    checks = load(SERP_FILE, {})
     deals = []
 
     for o, oname in CFG["origins"].items():
@@ -285,12 +397,21 @@ def main():
                               "rank": rank_pct(prices, f["price"]), "key": key})
             if not picks:
                 continue
-            # 노선당 가장 싼 몇 건만 보여주고, 나머지는 '외 N건'으로 묶어서 한 번에 처리
-            shown = picks[: CFG["max_alerts_per_route"]]
-            shown[-1]["more"] = len(picks) - len(shown)
-            deals.extend(shown)
-            for pk in picks[len(shown):]:
-                sent[pk["key"]] = str(TODAY)
+            peak_txt = ",".join(f"{m}월" for m in PEAKS.get(d, [])) or "전체"
+            # 가장 싼 후보부터 구글로 확인 → '낮음'인 것만 (노선당 최대 N건)
+            confirmed = []
+            for pk in picks[: CFG.get("google_checks_per_route", 2)]:
+                pk["peak"] = peak_txt
+                if not SERP_KEY:
+                    break  # 구글 확인 없이 보내지 않음 (SERPAPI_KEY 등록 전엔 기록만 쌓음)
+                g = google_check(o, d, pk["fare"], checks)
+                if not g or g.get("level") != "low":
+                    continue
+                pk["google"] = g
+                confirmed.append(pk)
+                if len(confirmed) >= CFG["max_alerts_per_route"]:
+                    break
+            deals.extend(confirmed)
 
     if deals:
         deals.sort(key=lambda x: x["rank"])
@@ -307,6 +428,8 @@ def main():
     sent = {k: v for k, v in sent.items() if k.split("|")[1] >= str(TODAY)}
     save(HISTORY_FILE, hist)
     save(SENT_FILE, sent)
+    checks = {k: v for k, v in checks.items() if k.startswith("_") or k.split("|")[1] >= str(TODAY)}
+    save(SERP_FILE, checks)
 
 
 if __name__ == "__main__":

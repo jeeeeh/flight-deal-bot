@@ -47,6 +47,9 @@ jobs:
         if: ${{ !inputs.probe }}
         env:
           TP_TOKEN: ${{ secrets.TP_TOKEN }}
+          NAVER_CLIENT_ID: ${{ secrets.NAVER_CLIENT_ID }}
+          NAVER_CLIENT_SECRET: ${{ secrets.NAVER_CLIENT_SECRET }}
+          SERPAPI_KEY: ${{ secrets.SERPAPI_KEY }}
           BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
           CHAT_ID: ${{ secrets.CHAT_ID }}
           TEST_MESSAGE: ${{ inputs.test_message }}

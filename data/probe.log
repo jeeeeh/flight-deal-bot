@@ -1,0 +1,12 @@
+===== /aviasales/v3/get_latest_prices 2025-01-01 200 count 0
+{"data": [], "currency": "", "success": true}
+===== /aviasales/v3/get_latest_prices 2026-01-01 200 count 0
+{"data": [], "currency": "", "success": true}
+===== /v2/prices/month-matrix 2026-01-01 200 count 0
+{"data": [], "currency": "krw", "success": true}
+===== /aviasales/v3/prices_for_dates 2026-01 200 count 0
+{"data": [], "currency": "krw", "success": true}
+===== /v1/prices/calendar 2026-01 200 count 93
+[{"origin": "SEL", "destination": "DAD", "airline": "TW", "departure_at": "2026-10-23T21:35:00+09:00", "return_at": "2026-10-28T01:20:00+07:00", "expires_at": "2026-10-23T02:47:30Z", "price": 259268, "flight_number": 13, "transfers": 0}, {"origin": "SEL", "destination": "DAD", "airline": "ZE", "departure_at": "2026-10-24T21:15:00+09:00", "return_at": "2026-10-29T00:40:00+07:00", "expires_at": "2026-10-23T02:47:30Z", "price": 217440, "flight_number": 593, "transfers": 0}]
+===== /aviasales/v3/grouped_prices 2026-01 200 count 0
+{"data": {}, "currency": "krw", "success": true}

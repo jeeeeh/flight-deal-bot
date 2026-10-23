@@ -54,9 +54,14 @@ jobs:
           CHAT_ID: ${{ secrets.CHAT_ID }}
           TEST_MESSAGE: ${{ inputs.test_message }}
           SAMPLE_MESSAGE: ${{ inputs.sample_message }}
-        run: python bot.py
+        shell: bash
+        run: |
+          mkdir -p data
+          set -o pipefail
+          python -u bot.py 2>&1 | tee data/last_run.log
 
       - name: 기록 저장
+        if: always()
         run: |
           git config user.name "flight-bot"
           git config user.email "flight-bot@users.noreply.github.com"

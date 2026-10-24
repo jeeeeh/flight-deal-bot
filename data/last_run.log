@@ -1,22 +1,14 @@
 ICN-DAD: 이번 17건 / 누적 130건
-ICN-CXR: 이번 61건 / 누적 374건
-구글 ICN-CXR|2027-02-21|2027-02-24: {'day': '2026-10-25', 'level': 'typical', 'total': 2503291, 'range': [1400000, 2600000], 'error': None}
-구글 ICN-CXR|2027-01-24|2027-01-29: {'day': '2026-10-25', 'level': 'high', 'total': 2503291, 'range': [1400000, 2350000], 'error': None}
+ICN-CXR: 이번 61건 / 누적 375건
 ICN-PQC: 이번 53건 / 누적 413건
-구글 ICN-PQC|2026-12-05|2026-12-10: {'day': '2026-10-25', 'level': 'typical', 'total': 2559000, 'range': [1800000, 3300000], 'error': None}
-구글 ICN-PQC|2026-12-07|2026-12-11: {'day': '2026-10-25', 'level': 'typical', 'total': 1803643, 'range': [1500000, 2750000], 'error': None}
 ICN-CEB: 이번 26건 / 누적 115건
-구글 ICN-CEB|2026-11-23|2026-11-27: {'day': '2026-10-25', 'level': 'typical', 'total': 2562500, 'range': [1500000, 2800000], 'error': None}
-구글 ICN-CEB|2026-12-18|2026-12-22: {'day': '2026-10-25', 'level': 'typical', 'total': 2892500, 'range': [1750000, 3000000], 'error': None}
 ICN-KLO: 이번 5건 / 누적 40건
-구글 ICN-KLO|2027-01-15|2027-01-20: {'day': '2026-10-25', 'level': 'typical', 'total': 3397000, 'range': [2550000, 3700000], 'error': None}
 ICN-BKI: 이번 2건 / 누적 8건
 ICN-GUM: 이번 4건 / 누적 8건
 ICN-SPN: 이번 0건 / 누적 1건
 ICN-OKA: 이번 5건 / 누적 18건
 ICN-FUK: 이번 10건 / 누적 104건
 ICN-KIX: 이번 36건 / 누적 260건
-구글 ICN-KIX|2026-11-19|2026-11-22: {'day': '2026-10-25', 'level': 'high', 'total': 2609900, 'range': [1550000, 2500000], 'error': None}
 ICN-TPE: 이번 8건 / 누적 52건
 ICN-BKK: 이번 35건 / 누적 311건
 ICN-SIN: 이번 2건 / 누적 17건

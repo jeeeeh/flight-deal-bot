@@ -1,18 +1,24 @@
-ICN-DAD: 이번 17건 / 누적 142건
-ICN-CXR: 이번 63건 / 누적 427건
-ICN-PQC: 이번 49건 / 누적 452건
-ICN-CEB: 이번 20건 / 누적 131건
-ICN-KLO: 이번 6건 / 누적 44건
+ICN-DAD: 이번 17건 / 누적 144건
+ICN-CXR: 이번 63건 / 누적 441건
+구글 ICN-CXR|2027-07-17|2027-07-21: {'day': '2026-10-27', 'level': 'low', 'total': 1591065, 'range': [2350000, 3750000], 'error': None}
+구글 ICN-CXR|2027-02-09|2027-02-12: {'day': '2026-10-27', 'level': 'typical', 'total': 2685871, 'range': [1650000, 2800000], 'error': None}
+ICN-PQC: 이번 48건 / 누적 459건
+구글 ICN-PQC|2026-12-06|2026-12-10: {'day': '2026-10-27', 'level': 'typical', 'total': 1883000, 'range': [1450000, 2750000], 'error': None}
+ICN-CEB: 이번 16건 / 누적 134건
+ICN-KLO: 이번 6건 / 누적 45건
 ICN-BKI: 이번 0건 / 누적 8건
-ICN-GUM: 이번 4건 / 누적 8건
+ICN-GUM: 이번 3건 / 누적 8건
 ICN-SPN: 이번 0건 / 누적 1건
-ICN-OKA: 이번 4건 / 누적 20건
-ICN-FUK: 이번 9건 / 누적 109건
-ICN-KIX: 이번 41건 / 누적 308건
-ICN-TPE: 이번 11건 / 누적 66건
-ICN-BKK: 이번 39건 / 누적 350건
-ICN-SIN: 이번 6건 / 누적 27건
-ICN-TAG: 이번 2건 / 누적 11건
+ICN-OKA: 이번 4건 / 누적 21건
+구글 ICN-OKA|2027-05-10|2027-05-14: {'day': '2026-10-27', 'level': 'typical', 'total': 2198900, 'range': [1500000, 2400000], 'error': None}
+ICN-FUK: 이번 10건 / 누적 111건
+ICN-KIX: 이번 41건 / 누적 318건
+ICN-TPE: 이번 9건 / 누적 70건
+ICN-BKK: 이번 41건 / 누적 361건
+구글 ICN-BKK|2026-12-15|2026-12-19: {'day': '2026-10-27', 'level': 'typical', 'total': 2789500, 'range': [1850000, 3050000], 'error': None}
+ICN-SIN: 이번 6건 / 누적 29건
+구글 ICN-SIN|2027-01-20|2027-01-24: {'day': '2026-10-27', 'level': 'typical', 'total': 3591500, 'range': [2950000, 4900000], 'error': None}
+ICN-TAG: 이번 1건 / 누적 11건
 CJJ-DAD: 이번 0건 / 누적 0건
 CJJ-CXR: 이번 0건 / 누적 0건
 CJJ-PQC: 이번 0건 / 누적 0건
@@ -23,9 +29,10 @@ CJJ-GUM: 이번 0건 / 누적 0건
 CJJ-SPN: 이번 0건 / 누적 0건
 CJJ-OKA: 이번 0건 / 누적 0건
 CJJ-FUK: 이번 0건 / 누적 0건
-CJJ-KIX: 이번 3건 / 누적 19건
+CJJ-KIX: 이번 3건 / 누적 21건
+구글 CJJ-KIX|2026-10-28|2026-10-31: {'day': '2026-10-27', 'level': None, 'total': 2544300, 'range': None, 'error': None}
 CJJ-TPE: 이번 0건 / 누적 0건
 CJJ-BKK: 이번 0건 / 누적 0건
 CJJ-SIN: 이번 0건 / 누적 0건
 CJJ-TAG: 이번 0건 / 누적 0건
-조건에 맞는 특가 없음 — 전송 안 함
+알림 1건 전송

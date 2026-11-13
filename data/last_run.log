@@ -1,19 +1,25 @@
-ICN-DAD: 이번 16건 / 누적 277건
-ICN-CXR: 이번 40건 / 누적 916건
-ICN-PQC: 이번 87건 / 누적 1050건
-ICN-CEB: 이번 22건 / 누적 290건
-ICN-KLO: 이번 7건 / 누적 120건
+ICN-DAD: 이번 17건 / 누적 282건
+ICN-CXR: 이번 39건 / 누적 923건
+ICN-PQC: 이번 85건 / 누적 1060건
+구글 ICN-PQC|2026-12-15|2026-12-18: {'day': '2026-11-14', 'level': 'typical', 'total': 1987075, 'range': [1800000, 3250000], 'error': None}
+ICN-CEB: 이번 22건 / 누적 291건
+구글 ICN-CEB|2026-11-16|2026-11-19: {'day': '2026-11-14', 'level': 'typical', 'total': 2694900, 'range': [1950000, 3000000], 'error': None}
+ICN-KLO: 이번 9건 / 누적 124건
+구글 ICN-KLO|2027-01-08|2027-01-13: {'day': '2026-11-14', 'level': 'typical', 'total': 3699000, 'range': [2550000, 3750000], 'error': None}
+구글 ICN-KLO|2027-01-11|2027-01-15: {'day': '2026-11-14', 'level': 'high', 'total': 3874000, 'range': [2550000, 3650000], 'error': None}
 ICN-BKI: 이번 0건 / 누적 4건
-ICN-GUM: 이번 5건 / 누적 37건
+ICN-GUM: 이번 6건 / 누적 39건
+구글 ICN-GUM|2026-12-06|2026-12-10: {'day': '2026-11-14', 'level': None, 'total': 1915000, 'range': None, 'error': None}
+구글 ICN-GUM|2026-11-24|2026-11-27: {'day': '2026-11-14', 'level': 'high', 'total': 2340000, 'range': [1250000, 1850000], 'error': None}
 ICN-SPN: 이번 1건 / 누적 13건
-ICN-OKA: 이번 7건 / 누적 42건
-구글 ICN-OKA|2026-12-07|2026-12-10: {'day': '2026-11-13', 'level': 'typical', 'total': 1866400, 'range': [1700000, 2700000], 'error': None}
+ICN-OKA: 이번 7건 / 누적 43건
 ICN-FUK: 이번 3건 / 누적 148건
-ICN-KIX: 이번 33건 / 누적 973건
-ICN-TPE: 이번 12건 / 누적 145건
-구글 ICN-TPE|2026-12-15|2026-12-19: {'day': '2026-11-13', 'level': 'typical', 'total': 1786695, 'range': [1600000, 2750000], 'error': None}
-ICN-BKK: 이번 42건 / 누적 831건
+ICN-KIX: 이번 33건 / 누적 975건
+ICN-TPE: 이번 12건 / 누적 146건
+ICN-BKK: 이번 41건 / 누적 838건
+구글 ICN-BKK|2026-12-05|2026-12-11: {'day': '2026-11-14', 'level': 'typical', 'total': 2701102, 'range': [1900000, 3550000], 'error': None}
 ICN-SIN: 이번 2건 / 누적 40건
+구글 ICN-SIN|2027-01-07|2027-01-13: {'day': '2026-11-14', 'level': 'typical', 'total': 3366000, 'range': [2900000, 4800000], 'error': None}
 ICN-TAG: 이번 3건 / 누적 27건
 CJJ-DAD: 이번 1건 / 누적 9건
 CJJ-CXR: 이번 2건 / 누적 4건
@@ -25,7 +31,7 @@ CJJ-GUM: 이번 0건 / 누적 0건
 CJJ-SPN: 이번 0건 / 누적 0건
 CJJ-OKA: 이번 0건 / 누적 0건
 CJJ-FUK: 이번 0건 / 누적 0건
-CJJ-KIX: 이번 3건 / 누적 53건
+CJJ-KIX: 이번 2건 / 누적 53건
 CJJ-TPE: 이번 0건 / 누적 0건
 CJJ-BKK: 이번 0건 / 누적 0건
 CJJ-SIN: 이번 0건 / 누적 0건
